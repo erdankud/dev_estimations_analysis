@@ -1,4 +1,4 @@
-phase_short_name,N,GBM MAE_log,B0 MAE_log,смещение (среднее err),выигрыш
+phase_short_name,N,GBM MAE_log,B0 MAE_log,bias (mean err),gain %
 Accept Test,1,1.928,2.485,1.928,22.4
 Code,510,0.629,0.618,-0.096,-1.7
 Code Inspect,1508,0.789,0.802,-0.265,1.7

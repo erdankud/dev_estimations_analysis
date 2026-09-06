@@ -1,4 +1,4 @@
-,групп,F,p (ANOVA),p (Kruskal-Wallis),R² out-of-sample
-исполнитель (RQ3),194,34.9,0.0e+00,0.0e+00,0.1033
-проект (RQ4),42,44.3,0.0e+00,0.0e+00,0.0304
-фаза процесса (RQ5),60,38.6,0.0e+00,0.0e+00,0.0401
+,groups,F,p (ANOVA),p (Kruskal-Wallis),R² out-of-sample
+person (RQ3),194,34.9,0.0e+00,0.0e+00,0.1033
+project (RQ4),42,44.3,0.0e+00,0.0e+00,0.0304
+process phase (RQ5),60,38.6,0.0e+00,0.0e+00,0.0401

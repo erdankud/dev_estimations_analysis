@@ -1,196 +1,197 @@
 # DATA_DICTIONARY.md
 
-Словарь переменных трёх датасетов. Значения, которые не удалось установить по
-документации или проверить по данным, помечены `UNKNOWN — requires investigation`.
-Ничего не додумано: если смысл колонки неизвестен, так и написано.
+A variable dictionary for the three datasets. Anything that could not be established from
+documentation or verified against the data is marked `UNKNOWN — requires investigation`.
+Nothing is invented: where a column's meaning is unknown, it says so.
 
-Все источники — [Derek-Jones/Software-estimation-datasets](https://github.com/Derek-Jones/Software-estimation-datasets).
+All sources come from
+[Derek-Jones/Software-estimation-datasets](https://github.com/Derek-Jones/Software-estimation-datasets).
 
 ---
 
-## 1. CESAW — основной датасет
+## 1. CESAW — the primary dataset
 
-Источник: Derek M. Jones, William R. Nichols, «The CESAW dataset: a conversation»,
-[arXiv:2106.03679](https://arxiv.org/abs/2106.03679). Архив `CESAW.tgz`.
+Source: Derek M. Jones, William R. Nichols, "The CESAW dataset: a conversation",
+[arXiv:2106.03679](https://arxiv.org/abs/2106.03679). Archive `CESAW.tgz`.
 
-### Что представляет собой одна строка
+### What one row represents
 
-Ключевой вопрос Phase 0. Ответ **разный для двух таблиц**:
+The key Phase 0 question. The answer **differs between the two tables**:
 
-* `CESAW_task_fact.csv` — **одна строка = одна задача, выполняемая конкретным
-  человеком в конкретной фазе процесса**. 61 817 строк.
-* `CESAW_time_fact.csv` — **одна строка = один сеанс работы** (одно включение
-  таймера). 203 621 строка. Это те самые «203 621 наблюдение» из описания
-  репозитория — но это не задачи.
+* `CESAW_task_fact.csv` — **one row = one task performed by one person in one process
+  phase**. 61,817 rows.
+* `CESAW_time_fact.csv` — **one row = one work session** (one timer entry). 203,621 rows.
+  These are the "203,621 observations" from the repository description — but they are not
+  tasks.
 
-Естественный ключ задачи установлен эмпирически:
+The natural task key was established empirically:
 
-| проверенный ключ | групп из 61 817 строк |
+| key tested | groups out of 61,817 rows |
 |---|---:|
-| `(project_key, wbs_element_key, plan_item_key)` | 51 582 — не уникален |
-| `+ phase_key` | 51 582 — не уникален |
-| `+ phase_key, person_key` | **61 817 — уникален** ✔ |
+| `(project_key, wbs_element_key, plan_item_key)` | 51,582 — not unique |
+| `+ phase_key` | 51,582 — not unique |
+| `+ phase_key, person_key` | **61,817 — unique** ✔ |
 
-Подтверждение: агрегация `time_fact` по этому же ключу воспроизводит
-`task_actual_time_minutes` с точностью до минуты для **99.3 %** задач.
+Confirmation: aggregating `time_fact` by that same key reproduces
+`task_actual_time_minutes` to the minute for **99.3%** of tasks.
 
-### `CESAW_task_fact.csv` (61 817 строк)
+### `CESAW_task_fact.csv` (61,817 rows)
 
-| колонка | тип | смысл | единица | пропуски | пример | доступна до старта работ? |
+| column | type | meaning | unit | missing | example | available before work starts? |
 |---|---|---|---|---|---|---|
-| `project_key` | int | идентификатор проекта (45 уникальных) | — | 0 | `100` | да |
-| `person_key` | int | анонимный идентификатор исполнителя (247 уникальных) | — | 0 | `296` | да |
-| `team_key` | int | идентификатор команды (10 уникальных) | — | 0 | `31` | да |
-| `wbs_element_key` | int | элемент Work Breakdown Structure | — | 0 | `11087` | да |
-| `plan_item_key` | int | элемент плана | — | 0 | `81765` | да |
-| `task_plan_time_minutes` | float | **ОЦЕНКА трудозатрат** | минуты | 0 (но 692 нуля) | `90.0` | да |
-| `task_actual_time_minutes` | int | **ФАКТИЧЕСКИЕ трудозатраты** | минуты | 0 | `7` | **нет — это таргет** |
-| `task_actual_start_date` | str | дата и время начала работы | `M/D/YYYY H:MM` | 0 | `10/29/2012 13:12` | да (используется как временная метка) |
-| `task_actual_complete_date` | str | дата и время завершения | `M/D/YYYY H:MM` | 0 | `10/29/2012 13:20` | **нет — утечка** |
-| `phase_key` | str | ключ фазы процесса; содержит литерал `\N` вместо NULL | — | как `\N` | `337` | да |
-| `phase_short_name` | str | название фазы (100 уникальных) | — | 0 | `Code Inspect` | да |
-| `process_name` | str | процесс: `Process-A/B/D`, `TSP(SM)` | — | 1 как `\N` | `TSP(SM)` | да |
+| `project_key` | int | project identifier (45 unique) | — | 0 | `100` | yes |
+| `person_key` | int | anonymous performer id (247 unique) | — | 0 | `296` | yes |
+| `team_key` | int | team identifier (10 unique) | — | 0 | `31` | yes |
+| `wbs_element_key` | int | Work Breakdown Structure element | — | 0 | `11087` | yes |
+| `plan_item_key` | int | plan item | — | 0 | `81765` | yes |
+| `task_plan_time_minutes` | float | **the ESTIMATE** | minutes | 0 (but 692 zeros) | `90.0` | yes |
+| `task_actual_time_minutes` | int | **the ACTUAL effort** | minutes | 0 | `7` | **no — this is the target** |
+| `task_actual_start_date` | str | work start date and time | `M/D/YYYY H:MM` | 0 | `10/29/2012 13:12` | yes (used as the timestamp) |
+| `task_actual_complete_date` | str | completion date and time | `M/D/YYYY H:MM` | 0 | `10/29/2012 13:20` | **no — leakage** |
+| `phase_key` | str | process phase key; contains the literal `\N` instead of NULL | — | as `\N` | `337` | yes |
+| `phase_short_name` | str | phase name (100 unique) | — | 0 | `Code Inspect` | yes |
+| `process_name` | str | process: `Process-A/B/D`, `TSP(SM)` | — | 1 as `\N` | `TSP(SM)` | yes |
 
-### `CESAW_time_fact.csv` (203 621 строка)
+### `CESAW_time_fact.csv` (203,621 rows)
 
-| колонка | тип | смысл | единица | пропуски | пример |
+| column | type | meaning | unit | missing | example |
 |---|---|---|---|---|---|
-| `time_log_fact_key` | int | идентификатор сеанса работы | — | 0 | `23003` |
-| `organization` | str | организация | — | 29 | `C` |
-| `project_key`, `person_key`, `team_key`, `wbs_element_key`, `plan_item_key`, `phase_key` | int | те же ключи, что в `task_fact` | — | 0 | — |
-| `time_log_start_date` | str | начало сеанса | `M/D/YYYY H:MM` | 0 | `9/16/2011 3:03` |
-| `time_log_end_date` | str | конец сеанса | `M/D/YYYY H:MM` | 0 | `9/16/2011 3:11` |
-| `time_log_delta_minutes` | int | чистая длительность сеанса | минуты | 0 | `8` |
-| `time_log_interrupt_minutes` | int | **минуты прерываний внутри сеанса** | минуты | 0 | `0` |
-| `phase.process_key` | int | ключ процесса | — | 0 | `1` |
-| `process_name` | str | название процесса | — | 0 | `TSP(SM)` |
+| `time_log_fact_key` | int | work session identifier | — | 0 | `23003` |
+| `organization` | str | organisation | — | 29 | `C` |
+| `project_key`, `person_key`, `team_key`, `wbs_element_key`, `plan_item_key`, `phase_key` | int | the same keys as in `task_fact` | — | 0 | — |
+| `time_log_start_date` | str | session start | `M/D/YYYY H:MM` | 0 | `9/16/2011 3:03` |
+| `time_log_end_date` | str | session end | `M/D/YYYY H:MM` | 0 | `9/16/2011 3:11` |
+| `time_log_delta_minutes` | int | net session duration | minutes | 0 | `8` |
+| `time_log_interrupt_minutes` | int | **interruption minutes within the session** | minutes | 0 | `0` |
+| `phase.process_key` | int | process key | — | 0 | `1` |
+| `process_name` | str | process name | — | 0 | `TSP(SM)` |
 
-### `wbs_parent.csv` (16 778 строк)
+### `wbs_parent.csv` (16,778 rows)
 
-| колонка | тип | смысл |
+| column | type | meaning |
 |---|---|---|
-| `project_key` | int | проект |
-| `wbs_element_key` | int | элемент WBS |
-| `parent_wbs_element_key` | float | родительский элемент; `NaN` у корня |
+| `project_key` | int | project |
+| `wbs_element_key` | int | WBS element |
+| `parent_wbs_element_key` | float | parent element; `NaN` at the root |
 
-*В этом анализе не используется — иерархия WBS осталась незадействованной.*
+*Unused in this analysis — the WBS hierarchy was left untouched.*
 
-### Производные признаки, собранные из `time_fact`
+### Features derived from `time_fact`
 
-| признак | как считается | доступен до старта? |
+| feature | how it is computed | available before start? |
 |---|---|---|
-| `n_sessions` | число строк `time_fact` на задачу | **нет** |
-| `interrupt_min` | сумма `time_log_interrupt_minutes` на задачу | **нет** |
-| `logged_min` | сумма `time_log_delta_minutes` (контроль сходимости) | **нет** |
+| `n_sessions` | count of `time_fact` rows per task | **no** |
+| `interrupt_min` | sum of `time_log_interrupt_minutes` per task | **no** |
+| `logged_min` | sum of `time_log_delta_minutes` (reconciliation check) | **no** |
 
-Эти три признака использованы **только** для описательного анализа RQ6 и
-исключены из признаков модели: в момент выдачи оценки они неизвестны.
+These three are used **only** for the descriptive RQ6 analysis and are excluded from the
+model's features: at estimation time they are unknown.
 
 ---
 
-## 2. SiP — валидация на другой организации
+## 2. SiP — validation on a different organisation
 
-Источник: Derek M. Jones, Stephen Cullum, «A conversation around the analysis of
-the SiP effort estimation dataset», [arXiv:1901.01621](https://arxiv.org/abs/1901.01621).
+Source: Derek M. Jones, Stephen Cullum, "A conversation around the analysis of the SiP
+effort estimation dataset", [arXiv:1901.01621](https://arxiv.org/abs/1901.01621).
 
-### Что представляет собой одна строка
+### What one row represents
 
-**Ловушка.** В `Sip-task-info.csv` 12 299 строк, но только 10 266 уникальных
-`TaskNumber`. Задача, над которой работали несколько человек, записана несколькими
-строками, и `HoursEstimate` / `HoursActual` в них **продублированы** — это тоталы
-по задаче. Проверено: `sum(DeveloperHoursActual) == HoursActual` для 100 % задач.
+**A trap.** `Sip-task-info.csv` has 12,299 rows but only 10,266 unique `TaskNumber`
+values. A task worked on by several people is stored as several rows, with
+`HoursEstimate` / `HoursActual` **duplicated** across them — those are task totals.
+Verified: `sum(DeveloperHoursActual) == HoursActual` for 100% of tasks.
 
-Одна строка = **одна пара (задача, исполнитель)**. Для анализа оценок нужна
-дедупликация по `TaskNumber`, иначе многолюдные задачи получают вес ×2–×5.
+One row = **one (task, developer) pair**. Analysing estimates requires deduplicating by
+`TaskNumber`, otherwise multi-person tasks get 2–5× the weight.
 
-**Кодировка файла — cp1252/latin-1**, не UTF-8 (типографские кавычки в `Summary`).
+**File encoding is cp1252/latin-1**, not UTF-8 (typographic quotes in `Summary`).
 
 ### `SiP/Sip-task-info.csv`
 
-| колонка | тип | смысл | единица | пропуски | доступна до старта? |
+| column | type | meaning | unit | missing | available before start? |
 |---|---|---|---|---|---|
-| `TaskNumber` | int | идентификатор задачи | — | 0 | да |
-| `Summary` | str | текстовая формулировка задачи | — | 0 | да |
-| `Priority` | int | приоритет (1–10) | — | 0 | да |
-| `RaisedByID` | int | кто завёл задачу | — | 0 | да |
-| `AssignedToID` | int | кому назначена | — | 0 | да |
-| `AuthorisedByID` | float | кто авторизовал | — | 8 034 | да |
-| `StatusCode` | str | статус: `FINISHED`, `COMPLETED`, `CANCELLED`, … | — | 0 | нет (финальный статус) |
-| `ProjectCode` | str | проект (20 уникальных) | — | 0 | да |
-| `ProjectBreakdownCode` | str | подпроект (77 уникальных) | — | 0 | да |
-| `Category` | str | `Development` / `Management` / `Operational` | — | 0 | да |
-| `SubCategory` | str | тип работы (24 значения: `Bug`, `Enhancement`, …) | — | 0 | да |
-| `HoursEstimate` | float | **ОЦЕНКА** (тотал по задаче) | часы | 0 | да |
-| `HoursActual` | float | **ФАКТ** (тотал по задаче) | часы | 0 | **нет — таргет** |
-| `DeveloperID` | int | исполнитель (22 уникальных) | — | 0 | да |
-| `DeveloperHoursActual` | float | часы конкретного исполнителя | часы | 0 | **нет — функция таргета** |
-| `TaskPerformance` | float | `HoursEstimate − HoursActual` | часы | 0 | **нет — прямая функция таргета** |
-| `DeveloperPerformance` | float | то же на уровне исполнителя | часы | 2 099 | **нет — прямая функция таргета** |
+| `TaskNumber` | int | task identifier | — | 0 | yes |
+| `Summary` | str | free-text task description | — | 0 | yes |
+| `Priority` | int | priority (1–10) | — | 0 | yes |
+| `RaisedByID` | int | who raised the task | — | 0 | yes |
+| `AssignedToID` | int | who it is assigned to | — | 0 | yes |
+| `AuthorisedByID` | float | who authorised it | — | 8,034 | yes |
+| `StatusCode` | str | status: `FINISHED`, `COMPLETED`, `CANCELLED`, … | — | 0 | no (final status) |
+| `ProjectCode` | str | project (20 unique) | — | 0 | yes |
+| `ProjectBreakdownCode` | str | sub-project (77 unique) | — | 0 | yes |
+| `Category` | str | `Development` / `Management` / `Operational` | — | 0 | yes |
+| `SubCategory` | str | type of work (24 values: `Bug`, `Enhancement`, …) | — | 0 | yes |
+| `HoursEstimate` | float | **the ESTIMATE** (task total) | hours | 0 | yes |
+| `HoursActual` | float | **the ACTUAL** (task total) | hours | 0 | **no — the target** |
+| `DeveloperID` | int | performer (22 unique) | — | 0 | yes |
+| `DeveloperHoursActual` | float | that developer's share of the hours | hours | 0 | **no — a function of the target** |
+| `TaskPerformance` | float | `HoursEstimate − HoursActual` | hours | 0 | **no — a direct function of the target** |
+| `DeveloperPerformance` | float | the same at developer level | hours | 2,099 | **no — a direct function of the target** |
 
-Три последние колонки — классический источник утечки. Их включение в признаки
-дало бы R² ≈ 1 и бессмысленную модель.
+The last three columns are a classic leakage source. Including them would give R² ≈ 1 and
+a meaningless model.
 
 ### `SiP/est-act-dates.csv`
 
-| колонка | тип | смысл | формат | доступна до старта? |
+| column | type | meaning | format | available before start? |
 |---|---|---|---|---|
-| `TaskNumber` | int | ключ к `Sip-task-info.csv` | — | да |
-| `EstimateOn` | date | **дата выдачи оценки** | `DD-Mon-YY` | да — это точка отсчёта |
-| `StartedOn` | date | дата начала работ | `DD-Mon-YY` | нет |
-| `CompletedOn` | date | дата завершения | `DD-Mon-YY` | **нет — утечка** |
+| `TaskNumber` | int | key into `Sip-task-info.csv` | — | yes |
+| `EstimateOn` | date | **date the estimate was given** | `DD-Mon-YY` | yes — this is the reference point |
+| `StartedOn` | date | work start date | `DD-Mon-YY` | no |
+| `CompletedOn` | date | completion date | `DD-Mon-YY` | **no — leakage** |
 
-Файл содержит те же дубликаты `TaskNumber` — дедуплицируется вместе с основным.
+The file carries the same `TaskNumber` duplicates and is deduplicated alongside the main
+table.
 
 ---
 
-## 3. Renzo Pomodoro — валидация на индивидуальном уровне
+## 3. Renzo Pomodoro — validation at the individual level
 
-Источник: Derek M. Jones, «The Renzo Pomodoro dataset»,
+Source: Derek M. Jones, "The Renzo Pomodoro dataset",
 [The Shape of Code](https://shape-of-code.com/2019/12/15/the-renzo-pomodoro-dataset/).
 
-Один человек, ежедневный лог задач за ~10 лет. Одна строка = одна запланированная
-задача на день.
+One person, a daily task log spanning about ten years. One row = one task planned for a day.
 
-| колонка | тип | смысл | единица | пропуски | доступна до старта? |
+| column | type | meaning | unit | missing | available before start? |
 |---|---|---|---|---|---|
-| `X.words` | str | тег/категория задачи (`@planning`, `@general`, …) | — | 960 | да |
-| `word_cnt` | str | список счётчиков слов через запятую | — | 68 | `UNKNOWN — requires investigation` |
-| `description` | int | числовой идентификатор описания | — | 0 | `UNKNOWN — requires investigation` |
-| `DONE` | int | завершена ли задача (0/1) | — | 0 | нет |
-| `date` | date | дата записи | `YYYY-MM-DD` | 0 | да |
-| `estimate` | float | **ОЦЕНКА** | помидоры (25 мин) | 1 478 | да |
-| `actual` | float | **ФАКТ** | помидоры | 7 103 | **нет — таргет** |
+| `X.words` | str | task tag / category (`@planning`, `@general`, …) | — | 960 | yes |
+| `word_cnt` | str | comma-separated list of counters | — | 68 | `UNKNOWN — requires investigation` |
+| `description` | int | numeric description identifier | — | 0 | `UNKNOWN — requires investigation` |
+| `DONE` | int | whether the task was completed (0/1) | — | 0 | no |
+| `date` | date | record date | `YYYY-MM-DD` | 0 | yes |
+| `estimate` | float | **the ESTIMATE** | pomodoros (25 min) | 1,478 | yes |
+| `actual` | float | **the ACTUAL** | pomodoros | 7,103 | **no — the target** |
 
-**Аномалия в сырых данных:** максимум `estimate` = 5.1 × 10⁷ помидоров
-(≈ 2 400 лет). Явный мусор ввода. В анализе отсекаются оценки > 40 помидоров;
-решение записано в журнал очистки.
+**Anomaly in the raw data:** the maximum `estimate` is 5.1 × 10⁷ pomodoros (≈ 2,400 years).
+Clearly data-entry junk. The analysis cuts estimates above 40 pomodoros; the decision is
+recorded in the cleaning log.
 
 ---
 
-## Целевые переменные (строятся во всех трёх датасетах)
+## Target variables (built for all three datasets)
 
-| переменная | формула | смысл |
+| variable | formula | meaning |
 |---|---|---|
-| `estimate` | приведено к часам (CESAW: минуты ÷ 60) | оценка |
-| `actual` | приведено к часам | факт |
-| `ratio` | `actual / estimate` | > 1 недооценка, < 1 переоценка |
-| `log_ratio` | `log(ratio)` | основная величина анализа: симметрична и аддитивна |
-| `abs_error` | `actual − estimate` | абсолютная ошибка, часы |
-| `rel_error` | `(actual − estimate) / estimate` | относительная ошибка |
-| `underestimated` | `1 if actual > estimate else 0` | таргет классификации |
-| `exact` | `actual == estimate` | флаг учётного артефакта (см. Phase 4) |
+| `estimate` | converted to hours (CESAW: minutes ÷ 60) | the estimate |
+| `actual` | converted to hours | the actual |
+| `ratio` | `actual / estimate` | > 1 underestimate, < 1 overestimate |
+| `log_ratio` | `log(ratio)` | the main analysis quantity: symmetric and additive |
+| `abs_error` | `actual − estimate` | absolute error, hours |
+| `rel_error` | `(actual − estimate) / estimate` | relative error |
+| `underestimated` | `1 if actual > estimate else 0` | classification target |
+| `exact` | `actual == estimate` | flag for the logging artefact (see Phase 4) |
 
-## Сводка после очистки
+## Summary after cleaning
 
 | | CESAW | SiP | Renzo |
 |---|---:|---:|---:|
-| строк на входе | 61 817 | 12 299 | 17 764 |
-| задач после очистки | **60 284** | **10 266** | **10 159** |
-| период | 2008-09 – 2017-07 | 2004-02 – 2014-12 | 2009-04 – 2019-xx |
-| людей | 247 | 22 | 1 |
-| проектов | 45 | 20 | — |
-| медиана оценки | 0.9 ч | 2.5 ч | 2 помидора |
-| доля `actual == estimate` | 8.1 % | 34.1 % | 43.9 % |
+| input rows | 61,817 | 12,299 | 17,764 |
+| tasks after cleaning | **60,284** | **10,266** | **10,159** |
+| period | 2008-09 – 2017-07 | 2004-02 – 2014-12 | 2009-04 – 2019 |
+| people | 247 | 22 | 1 |
+| projects | 45 | 20 | — |
+| median estimate | 0.9 h | 2.5 h | 2 pomodoros |
+| share `actual == estimate` | 8.1% | 34.1% | 43.9% |
 
-Полный журнал решений об удалении строк — в `results/01_cleaning_log.csv`,
-он печатается при каждом запуске `src/analysis.py`.
+The full log of row-removal decisions is in `results/01_cleaning_log.csv`; it is printed
+on every run of `src/analysis.py`.

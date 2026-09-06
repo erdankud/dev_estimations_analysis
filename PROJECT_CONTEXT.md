@@ -1,198 +1,199 @@
 # PROJECT_CONTEXT.md
 
-Рамка проекта: постановка задачи, исследовательские вопросы, методологические
-правила и границы применимости выводов.
+The frame for this project: problem statement, research questions, methodology rules and
+the limits of what the findings support.
 
 ---
 
-## 1. Название и суть
+## 1. Name and purpose
 
 **Predicting and Explaining Software Development Estimation Error**
 
-Проект исследует, почему разработчики ошибаются в оценках трудозатрат, и можно ли
-предсказать ошибку заранее. Две дополняющие друг друга цели:
+The project investigates why developers get effort estimates wrong, and whether the error
+can be predicted in advance. Two complementary goals:
 
-1. **Объяснительная** — выявить факторы, связанные с ошибкой оценки.
-2. **Предсказательная** — построить модели, предсказывающие факт недооценки
-   и величину ошибки.
+1. **Explanatory** — identify the factors associated with estimation error.
+2. **Predictive** — build models that predict the fact of underestimation and the
+   magnitude of the error.
 
-Центральный вопрос:
+The central question:
 
-> **Можно ли предсказать, что задача будет недооценена, и какие факторы объясняют
-> ошибку оценки?**
+> **Can we predict that a task will be underestimated, and what factors explain the
+> estimation error?**
 
-Формулировка выбрана намеренно. «Предскажи `actual_hours`» — обычное regression
-exercise. «Почему `Actual ≠ Estimate`» — исследование, в котором данные могут
-опровергнуть гипотезу, а не только подтвердить её. В этом проекте так и вышло:
-**три гипотезы из семи опровергнуты**.
+The phrasing is deliberate. "Predict `actual_hours`" is an ordinary regression exercise.
+"Why is `Actual ≠ Estimate`" is an investigation in which the data can refute a hypothesis
+rather than only confirm it. That is what happened here: **three of seven hypotheses were
+refuted**.
 
-## 2. Критерий успеха
+## 2. Definition of success
 
-Проект оценивается **не по максимальному R² или accuracy**. Успех — это способность:
+The project is judged **not by maximum R² or accuracy**. Success means demonstrating the
+ability to:
 
-- разобраться в грязных реальных данных и понять, что означает одна строка;
-- сформулировать проверяемые гипотезы;
-- провести EDA и найти артефакты сбора данных;
-- отличить корреляцию от причинности и найти конфаундеры;
-- сконструировать признаки без утечек;
-- установить честный baseline;
-- обучить и оценить модели;
-- объяснить их прогнозы;
-- корректно сообщить неопределённость;
-- назвать границы применимости выводов.
+- work through messy real data and establish what one row means;
+- state testable hypotheses;
+- run EDA and find data-collection artefacts;
+- distinguish correlation from causation and find confounders;
+- engineer features without leakage;
+- establish an honest baseline;
+- train and evaluate models;
+- explain their predictions;
+- communicate uncertainty correctly;
+- state the limits of the conclusions.
 
-Модель, которая проиграла baseline, но при этом объяснила **почему** — результат.
-Модель с высоким R² на утёкших признаках — нет.
+A model that loses to the baseline but explains **why** is a result. A model with a high
+R² built on leaked features is not.
 
-## 3. Данные
+## 3. Data
 
-| датасет | задач | роль |
+| dataset | tasks | role |
 |---|---:|---|
-| **CESAW** | 60 284 | основной: 247 человек, 45 проектов, есть данные о прерываниях |
-| **SiP** | 10 266 | валидация на другой организации |
-| **Renzo Pomodoro** | 10 159 | валидация на индивидуальном уровне |
+| **CESAW** | 60,284 | primary: 247 people, 45 projects, has interruption data |
+| **SiP** | 10,266 | validation on a different organisation |
+| **Renzo Pomodoro** | 10,159 | validation at the individual level |
 
-CESAW выбран основным по трём причинам: объём достаточен для неигрушечного ML;
-есть настоящая пара estimate → actual на уровне **задачи**, а не проекта
-(в отличие от PROMISE/COCOMO, где строка — это проект целиком); есть контекстные
-переменные, включая прерывания.
+CESAW was chosen as primary for three reasons: the volume supports non-toy ML; it carries
+a genuine estimate → actual pair at the **task** level rather than the project level
+(unlike PROMISE/COCOMO, where a row is a whole project); and it has contextual variables,
+including interruptions.
 
-ISBSG (13 147 проектов) рассматривался и отклонён: полный доступ платный (AUD 3 000).
+ISBSG (13,147 projects) was considered and rejected: full access is paid (AUD 3,000).
 
-Подробное описание переменных — в [`DATA_DICTIONARY.md`](DATA_DICTIONARY.md).
+Variable-level documentation is in [`DATA_DICTIONARY.md`](DATA_DICTIONARY.md).
 
-## 4. Целевые переменные
+## 4. Target variables
 
-Абсолютная ошибка `actual − estimate` бесполезна сама по себе: ошибка в 2 часа
-на задаче в 2 часа и на задаче в 200 часов — разные события. Поэтому:
+Absolute error `actual − estimate` is useless on its own: two hours of error on a two-hour
+task and on a 200-hour task are different events. Hence:
 
-| | формула | назначение |
+| | formula | purpose |
 |---|---|---|
-| `estimation_ratio` | `actual / estimate` | основная величина |
-| `log_ratio` | `log(actual / estimate)` | таргет регрессии |
-| `underestimated` | `1 if actual > estimate` | таргет классификации |
+| `estimation_ratio` | `actual / estimate` | the primary quantity |
+| `log_ratio` | `log(actual / estimate)` | regression target |
+| `underestimated` | `1 if actual > estimate` | classification target |
 
-**Почему логарифм.** Отношение положительно и сильно скошено (максимум в CESAW —
-×298). В логах ошибки «в 2 раза дольше» и «в 2 раза быстрее» симметричны, среднее
-`log_ratio` = логарифм геометрического среднего (устойчивая мера смещения),
-а `exp(MAE_log)` читается как «типичная ошибка в N раз».
+**Why logarithms.** The ratio is strictly positive and heavily skewed (the CESAW maximum is
+×298). In log space "twice as long" and "half as long" are symmetric, the mean of
+`log_ratio` is the log of the geometric mean (a robust bias measure), and `exp(MAE_log)`
+reads as "typically wrong by a factor of N".
 
-## 5. Исследовательские вопросы и вердикты
+## 5. Research questions and verdicts
 
-| RQ | гипотеза | вердикт |
+| RQ | hypothesis | verdict |
 |---|---|---|
-| **RQ1** | Есть систематическая недооценка | **опровергнута** — в агрегате переоценка (×0.80 / ×0.86 / ×0.95) |
-| **RQ2** | Крупные задачи недооценивают сильнее | **опровергнута, знак обратный** — регрессия к среднему |
-| **RQ3** | Точность различается между исполнителями | **подтверждена в CESAW** (R² 0.103), но не в SiP (0.026) |
-| **RQ4** | Проект объясняет часть вариации | подтверждена, эффект мал (R² 0.030) |
-| **RQ5** | Тип работы влияет | подтверждена, эффект мал (R² 0.040) |
-| **RQ6** | Прерывания связаны с ошибкой | **подтверждена, сильный эффект** (×~2 при контроле размера) |
-| **RQ7** | Круглые оценки менее точны | **не подтверждена** — сырой эффект объясняется размером задачи |
-| **RQ8** | Можно предсказать недооценку | **да, но не по оценке** — ROC-AUC 0.49 → 0.71 при добавлении контекста |
-| **RQ9** | Можно предсказать величину ошибки | частично — выигрыш 10 % по RMSE_log над baseline |
+| **RQ1** | There is systematic underestimation | **refuted** — the aggregate shows overestimation (×0.80 / ×0.86 / ×0.95) |
+| **RQ2** | Larger tasks are underestimated more | **refuted, opposite sign** — regression to the mean |
+| **RQ3** | Accuracy differs between people | **supported in CESAW** (R² 0.103), but not in SiP (0.026) |
+| **RQ4** | Project explains part of the variation | supported, small effect (R² 0.030) |
+| **RQ5** | Type of work matters | supported, small effect (R² 0.040) |
+| **RQ6** | Interruptions relate to the error | **supported, strong effect** (×~2 with size controlled) |
+| **RQ7** | Round estimates are less accurate | **not supported** — the raw effect is explained by task size |
+| **RQ8** | Underestimation can be predicted | **yes, but not from the estimate** — ROC-AUC 0.49 → 0.71 once context is added |
+| **RQ9** | The magnitude of the error can be predicted | partly — a 10% gain in RMSE_log over the baseline |
 
-## 6. Методологические правила
+## 6. Methodology rules
 
-Правила зафиксированы **до** моделирования и соблюдались во всех экспериментах.
+These were fixed **before** modelling and held across every experiment.
 
-### 6.1 Ничего не удаляется молча
+### 6.1 Nothing is dropped silently
 
-Каждое решение об исключении строк записывается в `CLEANING_LOG` и выводится
-в `results/01_cleaning_log.csv`.
+Every decision to exclude rows is recorded in `CLEANING_LOG` and written to
+`results/01_cleaning_log.csv`.
 
-### 6.2 Понимание данных предшествует моделированию
+### 6.2 Understanding precedes modelling
 
-Порядок работы жёсткий:
+The order is strict:
 
 ```
-понимание структуры → очистка → сборка task-level → EDA → гипотезы
-    → статистика → признаки → baseline → ML → оценка → объяснимость → выводы
+understand the structure → clean → build task-level → EDA → hypotheses
+    → statistics → features → baseline → ML → evaluation → explainability → conclusions
 ```
 
-Переход от «сырых данных» сразу к модели запрещён. Половина выводов проекта
-получена на первых трёх шагах.
+Jumping from raw data straight to a model is not allowed. Half the findings in this
+project came from the first three steps.
 
-### 6.3 Защита от утечек
+### 6.3 Leakage control
 
-Признаком может быть только то, что известно **в момент выдачи оценки**.
+A feature may only be something known **at the moment the estimate is given**.
 
-Исключены:
-- `task_actual_time_minutes`, `HoursActual` — таргет;
-- `task_actual_complete_date`, `CompletedOn` — известны после;
-- `n_sessions`, `interrupt_min` — известны после (хотя это сильнейший фактор RQ6);
-- `DeveloperHoursActual`, `TaskPerformance`, `DeveloperPerformance` в SiP —
-  прямые функции таргета.
+Excluded:
+- `task_actual_time_minutes`, `HoursActual` — the target;
+- `task_actual_complete_date`, `CompletedOn` — known afterwards;
+- `n_sessions`, `interrupt_min` — known afterwards (even though this is the strongest
+  factor in RQ6);
+- `DeveloperHoursActual`, `TaskPerformance`, `DeveloperPerformance` in SiP — direct
+  functions of the target.
 
-Исторические признаки («насколько этот человек ошибался раньше») считаются
-**расширяющимся средним со сдвигом на шаг** в хронологическом порядке: для задачи
-№500 используются только задачи №1–499. Наличие утечки проверяется автоматически
-(`assert`): у первой задачи каждого исполнителя история обязана быть `NaN`.
+Historical features ("how wrong was this person before") use an **expanding mean shifted
+by one step** in chronological order: for task #500 only tasks #1–499 are used. The
+absence of leakage is checked automatically (`assert`): the first task of every person
+must have `NaN` history.
 
-### 6.4 Стратегия разбиения — часть результата
+### 6.4 The split strategy is part of the result
 
-Данные содержат повторные наблюдения по людям и проектам, поэтому случайное
-разбиение даёт оптимистичный результат. Считаются все три стратегии:
+The data contains repeated observations of the same people and projects, so a random split
+gives an optimistic result. All three strategies are computed:
 
-| | что проверяет | реалистичность |
+| | what it tests | realism |
 |---|---|---|
-| A. Случайное | базовая обучаемость | оптимистично |
-| B. По проектам | перенос на новый проект | строгая проверка обобщения |
-| C. Временное | предсказание будущего по прошлому | **соответствует проду** |
+| A. Random | basic learnability | optimistic |
+| B. By project | transfer to a new project | strict generalisation test |
+| C. Temporal | predicting the future from the past | **matches production** |
 
-Основные результаты отчитываются по **C**. Разброс между стратегиями
-(ROC-AUC 0.775 / 0.738 / 0.709) сам по себе — результат.
+Headline results are reported under **C**. The spread between strategies
+(ROC-AUC 0.775 / 0.738 / 0.709) is itself a finding.
 
-### 6.5 Baseline обязателен
+### 6.5 A baseline is mandatory
 
-`факт = оценка` — «просто поверь разработчику». Бесплатный, всегда доступный
-и сильный. Модель, не побившая его, признаётся бесполезной, а не подгоняется.
+`actual = estimate` — "just trust the developer". Free, always available and strong. A
+model that fails to beat it is declared useless rather than tuned until it wins.
 
-### 6.6 Артефакты учёта изолируются
+### 6.6 Logging artefacts are isolated
 
-У 8 % задач CESAW, 34 % SiP и 44 % Renzo факт **в точности** равен оценке.
-Это списание времени по плану, а не точность: доля падает с ~60 % на мелких
-задачах до ~1 % на крупных. Ключевые результаты считаются дважды — на всех
-данных и на подвыборке без точных совпадений.
+In 8% of CESAW tasks, 34% of SiP and 44% of Renzo the actual equals the estimate
+**exactly**. This is time logged against the plan, not accuracy: the share falls from ~60%
+on small tasks to ~1% on large ones. Key results are computed twice — on all data and on
+the subset with exact matches removed.
 
-### 6.7 Значимость ≠ величина эффекта
+### 6.7 Significance ≠ effect size
 
-При 55 тысячах наблюдений значимо почти всё. Поэтому везде, где есть p-value,
-приводится и величина эффекта. Для R² категориальных факторов с большим числом
-уровней (`person` — 246) дополнительно считаются скорректированный
-и **out-of-sample** R².
+At 55,000 observations almost everything is significant. So wherever a p-value appears, an
+effect size appears beside it. For categorical factors with many levels (`person` has 246)
+an adjusted and an **out-of-sample** R² are computed as well.
 
-### 6.8 Конфаундеры проверяются
+### 6.8 Confounders are checked
 
-Ни одно сравнение групп не принимается без контроля размера задачи — он
-коррелирует почти со всем. Именно так развалилась гипотеза RQ7.
+No group comparison is accepted without controlling for task size — it correlates with
+almost everything. That is exactly how hypothesis RQ7 fell apart.
 
-## 7. Что этот проект НЕ утверждает
+## 7. What this project does NOT claim
 
-- **Причинность.** Все данные наблюдательные. Связь прерываний с перерасходом
-  установлена, направление — нет.
-- **Отсутствие self-fulfilling prophecy.** Разработчик мог подгонять работу
-  под названный срок. Разделить это без эксперимента невозможно.
-- **Полноту выборки.** Незакрытых и отменённых задач в датасетах нет →
-  survivorship bias, вероятно смещающий выводы в оптимистичную сторону.
-- **Переносимость коэффициентов.** CESAW — формальный TSP-процесс, часть проектов
-  safety-critical. Воспроизводится направление эффектов, но не их величина.
+- **Causality.** All the data is observational. The association between interruptions and
+  overrun is established; the direction is not.
+- **Absence of a self-fulfilling prophecy.** A developer may have paced the work to the
+  quoted deadline. Inseparable without an experiment.
+- **Sample completeness.** Unfinished and cancelled tasks are absent from the datasets →
+  survivorship bias, likely biasing the conclusions optimistic.
+- **Transferable coefficients.** CESAW is a formal TSP process with some safety-critical
+  projects. The direction of the effects replicates; their magnitude does not.
 
-## 8. Стек
+## 8. Stack
 
-`Python` · `pandas` · `numpy` · `scipy` · `scikit-learn`
-(`HistGradientBoosting`, `RandomForest`, `LogisticRegression`, квантильная
-регрессия, permutation importance) · `shap` · `matplotlib`
+`Python` · `pandas` · `numpy` · `scipy` · `scikit-learn` (`HistGradientBoosting`,
+`RandomForest`, `LogisticRegression`, quantile regression, permutation importance) ·
+`shap` · `matplotlib`
 
-## 9. Отступления от исходного плана
+## 9. Departures from the original plan
 
-Исходная рамка задумывалась как **менторский формат**: ассистент даёт задания,
-аналитик пишет код сам. Здесь работа выполнена целиком по прямому запросу
-заказчика — это осознанное отступление, а не упущение.
+The original frame was designed as a **mentoring format**: the assistant sets tasks and
+the analyst writes the code. Here the work was carried out in full at the client's
+explicit request — a deliberate departure, not an oversight.
 
-Второе отступление: вместо восьми отдельных ноутбуков сделан **один сквозной**.
-Причина — требование «файл, который можно открыть в Google Colab»: один ноутбук
-запускается одной кнопкой и не требует передачи промежуточных артефактов между
-файлами. Фазы исходного плана сохранены как разделы ноутбука.
+Second departure: instead of eight separate notebooks there is **one end-to-end notebook**.
+The reason is the requirement for "a file that can be opened in Google Colab" — a single
+notebook runs with one button and needs no intermediate artifacts passed between files.
+The phases of the original plan are preserved as notebook sections.
 
-Третье: `wbs_parent.csv` (иерархия Work Breakdown Structure) не задействован —
-это оставлено как направление для развития.
+Third: `wbs_parent.csv` (the Work Breakdown Structure hierarchy) is unused — left as a
+direction for further work.

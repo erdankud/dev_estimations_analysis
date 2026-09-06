@@ -1,4 +1,4 @@
-sess_bin,N,geo,med_est
+sess_bin,N,geo_mean,median_estimate
 1,27583,0.558,0.5
 2,9604,0.853,0.962
 3–4,8038,1.071,1.394

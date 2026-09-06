@@ -1,122 +1,121 @@
 # Predicting and Explaining Software Development Estimation Error
 
-**Почему разработчики ошибаются в оценках — и можно ли предсказать ошибку заранее**
+**Why developers get effort estimates wrong — and whether the error can be predicted**
 
-Исследование 80 709 задач из трёх независимых публичных датасетов, в которых для
-каждой задачи известны **и оценка, и фактические трудозатраты**.
+A study of 80,709 tasks from three independent public datasets, each recording **both the
+estimate and the actual effort** for every task.
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/erdankud/dev_estimations_analysis/blob/main/notebooks/Dev_Estimations_Analysis.ipynb)
 
-📄 **[Полный отчёт с графиками → reports/final_report.docx](reports/final_report.docx)** (Word)
+📄 **[Full report → reports/final_report.docx](reports/final_report.docx)** (Word)
 
 ---
 
-## Главный результат
+## Headline result
 
-**Предсказуема не задача, а обстоятельства.**
+**What is predictable is not the task — it is the circumstances.**
 
-Модель, знающая только оценку разработчика, предсказывает недооценку с ROC-AUC
-**0.49** — не лучше подбрасывания монеты. Добавляем контекст (кто, какой проект,
-какая фаза) — AUC поднимается до **0.71**.
+A model given only the developer's estimate predicts underestimation at ROC-AUC **0.49**,
+no better than a coin flip. Add context — who, which project, which phase — and AUC rises
+to **0.71**.
 
-> В самой оценке нет информации о том, ошибочна ли она. Разработчик не «немного
-> знает» о своей ошибке — он не знает о ней ничего.
+> The estimate carries no information about whether it is wrong. A developer does not
+> "somewhat know" about their error; they know nothing about it.
 
-![Абляция](reports/figures/11_ablation.png)
+![Ablation](reports/figures/11_ablation.png)
 
-## Из семи гипотез три опровергнуты
+## Three of seven hypotheses were refuted
 
-| RQ | гипотеза | вердикт |
+| RQ | hypothesis | verdict |
 |---|---|---|
-| RQ1 | Разработчики систематически недооценивают | ❌ **опровергнута** — в агрегате переоценка (×0.80 / ×0.86 / ×0.95) |
-| RQ2 | Крупные задачи недооценивают сильнее | ❌ **опровергнута, знак обратный** — регрессия к среднему |
-| RQ3 | Точность зависит от исполнителя | ⚠️ подтверждена в CESAW (R² 0.10), но не в SiP (0.03) |
-| RQ4 | Проект объясняет часть вариации | ⚠️ подтверждена, эффект мал (0.03) |
-| RQ5 | Тип работы влияет | ⚠️ подтверждена, эффект мал (0.04) |
-| RQ6 | Прерывания связаны с ошибкой | ✅ **подтверждена — сильнейший фактор** (×2 при контроле размера) |
-| RQ7 | Круглые оценки менее точны | ❌ **не подтверждена** — сырой эффект оказался артефактом размера задачи |
+| RQ1 | Developers systematically underestimate | ❌ **refuted** — the aggregate bias is toward overestimation (×0.80 / ×0.86 / ×0.95) |
+| RQ2 | Larger tasks are underestimated more | ❌ **refuted, opposite sign** — regression to the mean |
+| RQ3 | Accuracy depends on the person | ⚠️ supported in CESAW (R² 0.10), not in SiP (0.03) |
+| RQ4 | Project explains part of the variation | ⚠️ supported, small effect (0.03) |
+| RQ5 | Type of work matters | ⚠️ supported, small effect (0.04) |
+| RQ6 | Interruptions relate to the error | ✅ **supported — the strongest factor found** (×2 within every size band) |
+| RQ7 | Round-number estimates are less accurate | ❌ **not supported** — the raw effect turned out to be an artefact of task size |
 
-## Остальные находки
+## Other findings
 
 | | |
 |---|---|
-| 🎭 | **34 % «идеальных оценок» в SiP — учётный артефакт.** Доля точных совпадений `факт == оценка` падает с 60 % на получасовых задачах до 1 % на многодневных: это списание времени по плану, а не точность. Без изоляции этих строк все метрики врут. |
-| 📉 | **Регрессия к среднему воспроизводится на всех трёх датасетах** — разные индустрии, культуры, единицы измерения (минуты, часы, помидоры). Наклоны −0.17 / −0.24 / −0.81, все `p < 1e−140`. |
-| 🧱 | **Потолок объяснимости низкий.** Все наблюдаемые факторы вместе объясняют 17 % дисперсии в CESAW и 14 % в SiP. **83–86 % — не объясняется ничем.** |
-| 🔀 | **Стратегия разбиения меняет выводы сильнее выбора модели:** ROC-AUC 0.775 (случайное) / 0.738 (новые проекты) / 0.709 (временное). Отчёт по случайному сплиту завысил бы всё. |
-| 📊 | **ML выигрывает на мелких задачах и проигрывает на крупных** (+6.6 % на задачах 2–4 ч, −36.6 % на задачах > 16 ч). Общая цифра «выигрыш 10 %» без этой разбивки вводила бы в заблуждение. |
-| 📏 | **Правильный продукт — интервал.** Conformal-калибровка поднимает покрытие с 73 % до 78 % при номинальных 80 %. До номинала не дотягивает — процесс нестационарен, и заявлять 80 % было бы неправдой. |
+| 🎭 | **34% of SiP's "perfect estimates" are a logging artefact.** The share of `actual == estimate` falls from 60% on sub-hour tasks to 1% on multi-day ones: this is time logged against the plan, not accuracy. Leave those rows in and every metric lies. |
+| 📉 | **Regression to the mean replicates across all three datasets** — different industries, cultures and units (minutes, hours, pomodoros). Slopes −0.17 / −0.24 / −0.81, all `p < 1e−140`. |
+| 🧱 | **The explainability ceiling is low.** All observed factors combined explain 17% of the variance in CESAW and 14% in SiP. **83–86% is explained by nothing.** |
+| 🔀 | **The split strategy shifts conclusions more than the choice of model:** ROC-AUC 0.775 (random) / 0.738 (unseen projects) / 0.709 (temporal). Reporting the random split would have inflated everything. |
+| 📊 | **ML wins on small tasks and loses on large ones** (+6.6% on 2–4h tasks, −36.6% above 16h). The headline "10% gain" without that breakdown would be misleading. |
+| 📏 | **The right product is an interval.** Conformal calibration lifts coverage from 73% to 78% against a nominal 80%. It does not reach nominal — the process is non-stationary, and claiming 80% would be untrue. |
 
-## Данные
+## Data
 
-| датасет | задач | единицы | период | роль |
+| dataset | tasks | units | period | role |
 |---|---:|---|---|---|
-| [**CESAW**](https://arxiv.org/abs/2106.03679) | 60 284 | минуты | 2008–2017 | основной: 247 человек, 45 проектов |
-| [**SiP**](https://arxiv.org/abs/1901.01621) | 10 266 | часы | 2004–2014 | валидация на другой организации |
-| [**Renzo Pomodoro**](https://shape-of-code.com/2019/12/15/the-renzo-pomodoro-dataset/) | 10 159 | помидоры | 2009–2019 | валидация на одном человеке |
+| [**CESAW**](https://arxiv.org/abs/2106.03679) | 60,284 | minutes | 2008–2017 | primary: 247 people, 45 projects |
+| [**SiP**](https://arxiv.org/abs/1901.01621) | 10,266 | hours | 2004–2014 | validation on a different organisation |
+| [**Renzo Pomodoro**](https://shape-of-code.com/2019/12/15/the-renzo-pomodoro-dataset/) | 10,159 | pomodoros | 2009–2019 | validation on a single individual |
 
-Источник: [Derek-Jones/Software-estimation-datasets](https://github.com/Derek-Jones/Software-estimation-datasets).
-Данные не хранятся в репозитории — скачиваются при запуске.
+Source: [Derek-Jones/Software-estimation-datasets](https://github.com/Derek-Jones/Software-estimation-datasets).
+The data is not stored in this repository — it is downloaded on run.
 
-## Структура
+## Layout
 
 ```
-├── PROJECT_CONTEXT.md                    ← постановка задачи и методологические правила
-├── DATA_DICTIONARY.md                    ← словарь переменных (Phase 0)
+├── PROJECT_CONTEXT.md                    ← problem statement and methodology rules
+├── DATA_DICTIONARY.md                    ← variable dictionary (Phase 0)
 ├── reports/
-│   ├── final_report.docx                 ← полный отчёт (Word)
-│   └── figures/                          ← 16 графиков
+│   ├── final_report.docx                 ← full report (Word)
+│   └── figures/                          ← 16 figures
 ├── notebooks/
-│   └── Dev_Estimations_Analysis.ipynb    ← ноутбук для Google Colab
+│   └── Dev_Estimations_Analysis.ipynb    ← Google Colab notebook
 ├── src/
-│   └── analysis.py                       ← весь пайплайн (percent-формат)
-├── build_notebook.py                     ← собирает ноутбук из analysis.py
-├── results/                              ← 34 таблицы с метриками (CSV)
+│   └── analysis.py                       ← the whole pipeline (percent format)
+├── build_notebook.py                     ← builds the notebook from analysis.py
+├── results/                              ← 34 metric tables (CSV)
 └── requirements.txt
 ```
 
-`src/analysis.py` написан в percent-формате (`# %%` / `# %% [markdown]`) — он
-одновременно исполняемый скрипт и источник ноутбука, поэтому код не дублируется
-и не расходится между артефактами.
+`src/analysis.py` is written in percent format (`# %%` / `# %% [markdown]`), so it is both
+an executable script and the notebook source — the code is never duplicated and the two
+artifacts cannot drift apart.
 
-## Как запустить
+## Running it
 
-**Google Colab** — откройте [ноутбук](notebooks/Dev_Estimations_Analysis.ipynb)
-по бейджу выше. Зависимости и данные подтягиваются первой ячейкой,
-полный прогон ~2 минуты.
+**Google Colab** — open the [notebook](notebooks/Dev_Estimations_Analysis.ipynb) via the
+badge above. Dependencies and data are pulled by the first cell; a full run takes about
+two minutes.
 
-**Локально:**
+**Locally:**
 
 ```bash
 git clone https://github.com/erdankud/dev_estimations_analysis
 cd dev_estimations_analysis
 pip install -r requirements.txt
 
-python src/analysis.py        # скачает данные, посчитает всё, запишет reports/ и results/
-python build_notebook.py      # пересобрать ноутбук после правок в analysis.py
+python src/analysis.py        # downloads data, computes everything, writes reports/ and results/
+python build_notebook.py      # rebuild the notebook after editing analysis.py
 ```
 
-## Методология
+## Methodology
 
-Правила зафиксированы **до** моделирования (подробно — в [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md)):
+The rules were fixed **before** modelling (details in [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md)):
 
-* **Понимание данных предшествует моделированию.** Что означает одна строка в CESAW,
-  выяснялось перебором ключей: `(project, wbs, plan_item, phase, person)` — единственный
-  уникальный, и агрегация сеансов по нему воспроизводит факт для 99.3 % задач.
-* **Ничего не удаляется молча** — журнал очистки в `results/01_cleaning_log.csv`.
-* **Всё в логарифмах.** `exp(MAE_log)` читается как «типичная ошибка в N раз».
-* **Защита от утечек.** Признаки — только то, что известно в момент оценки.
-  Прерывания и число сеансов исключены, хотя это сильнейший фактор (RQ6).
-  Исторические признаки — расширяющееся среднее со сдвигом, отсутствие утечки
-  проверяется `assert`-ом.
-* **Три стратегии разбиения** вместо одной; отчёт по временному.
-* **Baseline обязателен** — «факт = оценка», и он очень силён.
-* **Значимость ≠ величина эффекта.** Для факторов с большим числом уровней
-  (`person` — 246) считается скорректированный и out-of-sample R².
-* **Конфаундеры проверяются** — так развалилась гипотеза RQ7.
+* **Understanding the data comes before modelling.** What one CESAW row represents was
+  established by key search: `(project, wbs, plan_item, phase, person)` is the only unique
+  key, and aggregating sessions by it reproduces the recorded actual for 99.3% of tasks.
+* **Nothing is dropped silently** — the cleaning log lives in `results/01_cleaning_log.csv`.
+* **Everything in log space.** `exp(MAE_log)` reads as "typically wrong by a factor of N".
+* **Leakage control.** Features are limited to what is known at estimation time.
+  Interruptions and session counts are excluded even though they are the strongest factor
+  (RQ6). Historical features use a shifted expanding mean, and the absence of leakage is
+  checked by an `assert`.
+* **Three split strategies** instead of one; the temporal split is what gets reported.
+* **A baseline is mandatory** — "actual = estimate", and it is very strong.
+* **Significance ≠ effect size.** For factors with many levels (`person` has 246) an
+  adjusted and an out-of-sample R² are computed as well.
+* **Confounders are checked** — this is how hypothesis RQ7 fell apart.
 
-## Стек
+## Stack
 
-`pandas` · `numpy` · `scipy` · `scikit-learn` (`HistGradientBoosting`,
-`RandomForest`, `LogisticRegression`, квантильная регрессия, permutation
-importance) · `shap` · `matplotlib`
+`pandas` · `numpy` · `scipy` · `scikit-learn` (`HistGradientBoosting`, `RandomForest`,
+`LogisticRegression`, quantile regression, permutation importance) · `shap` · `matplotlib`

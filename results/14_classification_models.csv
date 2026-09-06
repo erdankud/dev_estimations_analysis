@@ -1,6 +1,6 @@
-модель,accuracy,precision,recall,F1,ROC-AUC,PR-AUC
-Baseline: доля класса (0.40),0.643,0.0,0.0,0.0,0.5,0.357
-Логистическая регрессия,0.68,0.596,0.328,0.423,0.693,0.548
-Дерево решений (depth=6),0.67,0.56,0.359,0.438,0.663,0.503
+model,accuracy,precision,recall,F1,ROC-AUC,PR-AUC
+Baseline: class share (0.40),0.643,0.0,0.0,0.0,0.5,0.357
+Logistic regression,0.68,0.596,0.328,0.423,0.693,0.548
+Decision tree (depth=6),0.67,0.56,0.359,0.438,0.663,0.503
 Random Forest,0.696,0.692,0.268,0.386,0.735,0.595
 Gradient Boosting,0.68,0.596,0.324,0.419,0.709,0.556

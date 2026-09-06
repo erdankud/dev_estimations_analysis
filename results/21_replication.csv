@@ -1,4 +1,4 @@
-датасет,qbin,N,медиана оценки,геом. среднее
+dataset,qbin,N,median estimate,geometric mean
 CESAW,0,7914,0.15,1.331
 CESAW,1,7913,0.35,0.787
 CESAW,2,7913,0.5,0.841

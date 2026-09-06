@@ -1,8 +1,8 @@
-RQ,гипотеза,вердикт,основание
-RQ1,Есть систематическая недооценка,ОПРОВЕРГНУТА,В агрегате геом. среднее < 1 во всех трёх датасетах (×0.80 / ×0.86 / ×0.95)
-RQ2,Крупные задачи недооценивают сильнее,"ОПРОВЕРГНУТА, знак обратный","Регрессия к среднему: мелкие недооценены, крупные переоценены; наклон < 0, p<1e−140"
-RQ3,Точность различается между исполнителями,ПОДТВЕРЖДЕНА (CESAW),Сильнейший фактор в CESAW: R² out-of-sample 0.103. Но в SiP лишь 0.026 — доминирующий фактор зависит от организации
-RQ4,Проект объясняет часть вариации,"подтверждена, эффект мал","p < 1e−50, R² out-of-sample 0.030"
-RQ5,Тип работы (фаза) влияет,"подтверждена, эффект мал","p < 1e−50, R² out-of-sample 0.040"
-RQ6,Прерывания связаны с ошибкой,"ПОДТВЕРЖДЕНА, сильный эффект",×~2 внутри каждой группы по размеру; но известно только постфактум
-RQ7,Круглые оценки менее точны,НЕ подтверждена,Сырой эффект исчезает при контроле размера задачи — конфаундер
+RQ,hypothesis,verdict,evidence
+RQ1,There is systematic underestimation,REFUTED,Geometric mean < 1 in all three datasets (×0.80 / ×0.86 / ×0.95)
+RQ2,Large tasks are underestimated more,"REFUTED, opposite sign","Regression to the mean: small underestimated, large overestimated; slope < 0, p<1e−140"
+RQ3,Accuracy differs between people,SUPPORTED (CESAW),Strongest factor in CESAW: R² out-of-sample 0.103. But only 0.026 in SiP — the dominant factor depends on the organisation
+RQ4,Project explains part of the variation,"supported, small effect","p < 1e−50, R² out-of-sample 0.030"
+RQ5,Type of work (phase) matters,"supported, small effect","p < 1e−50, R² out-of-sample 0.040"
+RQ6,Interruptions relate to the error,"SUPPORTED, strong effect",×~2 within every size band; but only known after the fact
+RQ7,Round estimates are less accurate,NOT supported,The raw effect disappears once task size is controlled for — confounder

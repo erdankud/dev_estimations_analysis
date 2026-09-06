@@ -1,4 +1,4 @@
-,признак,средний |SHAP|
+,feature,mean |SHAP|
 5,log_est,0.269
 14,person_recent_lr,0.1421
 3,person,0.1175

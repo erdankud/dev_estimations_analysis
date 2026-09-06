@@ -1,4 +1,4 @@
-phase_short_name,N,геом. среднее,медиана,доля недооценённых,SD log,SE,CI низ,CI верх
+phase_short_name,N,geometric mean,median,share underestimated,SD log,SE,CI low,CI high
 Ident,1611,0.478,0.606,0.245,1.193,0.03,0.451,0.507
 Ident Inspect,2841,0.536,0.556,0.254,1.023,0.019,0.516,0.556
 HLD Inspect,1374,0.556,0.585,0.27,1.075,0.029,0.526,0.589

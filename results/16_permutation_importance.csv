@@ -1,4 +1,4 @@
-,признак,важность,std
+,feature,importance,std
 0,phase_short_name,0.1156,0.0032
 5,log_est,0.0973,0.0031
 3,person,0.0652,0.0019

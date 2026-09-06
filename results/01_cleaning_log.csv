@@ -1,11 +1,11 @@
-,датасет,решение,строк затронуто,осталось
-0,CESAW,план ≤ 0 (задачу не оценивали) — отношение не определено,692,61125
-1,CESAW,факт ≤ 0 — невозможное значение,0,61125
-2,CESAW,не распознана дата начала,841,60284
-3,SiP,"дубли строк: многолюдная задача записана по строке на исполнителя, оценка и факт в них продублированы",2033,10266
-4,SiP,нулевая оценка или факт,0,10266
-5,SiP,нет даты выдачи оценки,0,10266
-6,Renzo,нет оценки или факта,7113,10651
-7,Renzo,нулевая оценка или факт,491,10160
-8,Renzo,оценка > 40 помидоров (в сырых данных есть значения до 5e7) — мусор ввода,1,10159
-9,Renzo,не распознана дата,0,10159
+,dataset,decision,rows affected,rows left
+0,CESAW,plan <= 0 (task was never estimated) — ratio undefined,692,61125
+1,CESAW,actual <= 0 — impossible value,0,61125
+2,CESAW,start date could not be parsed,841,60284
+3,SiP,"duplicate rows: a multi-person task is stored one row per developer, with estimate and actual repeated in each",2033,10266
+4,SiP,zero estimate or actual,0,10266
+5,SiP,no estimation date,0,10266
+6,Renzo,estimate or actual missing,7113,10651
+7,Renzo,zero estimate or actual,491,10160
+8,Renzo,estimate > 40 pomodoros (raw file holds values up to 5e7) — data entry junk,1,10159
+9,Renzo,date could not be parsed,0,10159

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Собирает Jupyter/Colab-ноутбук из src/analysis.py.
+"""Build the Jupyter/Colab notebook from src/analysis.py.
 
-analysis.py написан в percent-формате (`# %%` / `# %% [markdown]`), поэтому он
-одновременно является исполняемым скриптом и источником ноутбука — код не дублируется
-и не расходится между двумя артефактами.
+analysis.py is written in percent format (`# %%` / `# %% [markdown]`), so it is both an
+executable script and the notebook source — the code is never duplicated and the two
+artifacts cannot drift apart.
 
     python build_notebook.py
 """
@@ -43,7 +43,7 @@ def to_nb(cells):
     out = []
     for kind, body in cells:
         if kind == "markdown":
-            # снимаем "# " с начала строк комментария
+            # strip the leading "# " from comment lines
             src = "\n".join(re.sub(r"^# ?", "", ln) for ln in body.splitlines())
         else:
             src = body
@@ -70,4 +70,4 @@ if __name__ == "__main__":
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(to_nb(cells), ensure_ascii=False, indent=1), encoding="utf-8")
     md = sum(1 for k, _ in cells if k == "markdown")
-    print(f"{OUT}: {len(cells)} ячеек ({md} markdown, {len(cells) - md} code)")
+    print(f"{OUT}: {len(cells)} cells ({md} markdown, {len(cells) - md} code)")
