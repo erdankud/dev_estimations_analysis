@@ -1,0 +1,16 @@
+,признак,средний |SHAP|
+5,log_est,0.269
+14,person_recent_lr,0.1421
+3,person,0.1175
+2,project,0.0657
+0,phase_short_name,0.0553
+9,person_hist_lr,0.0534
+8,dow,0.0294
+12,phase_hist_lr,0.0234
+10,person_hist_n,0.0209
+13,person_hist_under,0.0166
+7,month,0.0106
+11,project_hist_lr,0.0106
+6,is_round,0.0044
+1,process_name,0.0025
+4,team_key,0.0015

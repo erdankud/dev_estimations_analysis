@@ -1,0 +1,16 @@
+,признак,важность,std
+0,phase_short_name,0.1156,0.0032
+5,log_est,0.0973,0.0031
+3,person,0.0652,0.0019
+14,person_recent_lr,0.0397,0.0013
+2,project,0.0042,0.0006
+12,phase_hist_lr,0.002,0.0003
+10,person_hist_n,0.0016,0.0004
+11,project_hist_lr,0.0006,0.0002
+8,dow,0.0004,0.0003
+1,process_name,0.0,0.0
+4,team_key,-0.0,0.0
+6,is_round,-0.0,0.0001
+7,month,-0.0003,0.0003
+13,person_hist_under,-0.0017,0.0002
+9,person_hist_lr,-0.0021,0.0006
