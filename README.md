@@ -7,7 +7,7 @@
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/erdankud/dev_estimations_analysis/blob/main/notebooks/Dev_Estimations_Analysis.ipynb)
 
-📄 **[Полный отчёт с графиками → reports/final_report.md](reports/final_report.md)**
+📄 **[Полный отчёт с графиками → reports/final_report.docx](reports/final_report.docx)** (Word)
 
 ---
 
@@ -64,7 +64,7 @@
 ├── PROJECT_CONTEXT.md                    ← постановка задачи и методологические правила
 ├── DATA_DICTIONARY.md                    ← словарь переменных (Phase 0)
 ├── reports/
-│   ├── final_report.md                   ← полный отчёт
+│   ├── final_report.docx                 ← полный отчёт (Word)
 │   └── figures/                          ← 16 графиков
 ├── notebooks/
 │   └── Dev_Estimations_Analysis.ipynb    ← ноутбук для Google Colab
